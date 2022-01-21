@@ -39,7 +39,7 @@ class KeepKeyboardPopupMenuItem extends StatelessWidget {
     Widget item = DefaultTextStyle(
       style: style,
       child: Container(
-        alignment: alignment ?? AlignmentDirectional.centerStart,
+        alignment: alignment ?? AlignmentDirectional.centerEnd,
         constraints: BoxConstraints(minHeight: height),
         padding: const EdgeInsets.symmetric(horizontal: _kMenuHorizontalPadding),
         child: child,
