@@ -63,18 +63,10 @@ class _RenderPercentageSize extends RenderAligningShiftedBox {
     alignChild();
   }
 
-  ClipRectLayer? _clipRectLayer;
-
   @override
   void paint(PaintingContext context, Offset offset) {
     final Rect rect = Offset.zero & size;
-    _clipRectLayer = context.pushClipRect(
-      needsCompositing,
-      offset,
-      rect,
-      super.paint,
-      clipBehavior: _clipBehavior,
-      // oldLayer: _clipRectLayer, // fix error on flutter 2.5+
-    );
+    context.pushClipRect(needsCompositing, offset, rect, super.paint,
+        clipBehavior: _clipBehavior);
   }
 }

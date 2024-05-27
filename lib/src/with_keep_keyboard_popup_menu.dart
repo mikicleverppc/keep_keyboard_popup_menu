@@ -102,7 +102,8 @@ class WithKeepKeyboardPopupMenu extends StatefulWidget {
         super(key: key);
 
   @override
-  WithKeepKeyboardPopupMenuState createState() => WithKeepKeyboardPopupMenuState();
+  WithKeepKeyboardPopupMenuState createState() =>
+      WithKeepKeyboardPopupMenuState();
 }
 
 class WithKeepKeyboardPopupMenuState extends State<WithKeepKeyboardPopupMenu> {
@@ -115,8 +116,10 @@ class WithKeepKeyboardPopupMenuState extends State<WithKeepKeyboardPopupMenu> {
   @override
   void initState() {
     super.initState();
-    _keyboardVisibilitySub =
-        KeyboardVisibilityController().onChange.distinct().listen((isKeyboardVisible) {
+    _keyboardVisibilitySub = KeyboardVisibilityController()
+        .onChange
+        .distinct()
+        .listen((isKeyboardVisible) {
       if (!isKeyboardVisible) closePopupMenu();
     });
   }
@@ -135,13 +138,12 @@ class WithKeepKeyboardPopupMenuState extends State<WithKeepKeyboardPopupMenu> {
       child: widget.childBuilder(context, openPopupMenu),
     );
     if (kIsWeb || !Platform.isIOS) {
-      return WillPopScope(
-        onWillPop: () async {
-          if (popupState == PopupMenuState.OPENED || popupState == PopupMenuState.OPENING) {
+      return PopScope(
+        canPop: popupState == PopupMenuState.CLOSED ||
+            popupState == PopupMenuState.CLOSING,
+        onPopInvoked: (didPop) async {
+          if (!didPop) {
             closePopupMenu();
-            return false;
-          } else {
-            return true;
           }
         },
         child: mainView,
@@ -248,8 +250,7 @@ class WithKeepKeyboardPopupMenuState extends State<WithKeepKeyboardPopupMenu> {
         );
       });
 
-      final overlay = Overlay.of(context)!;
-      overlay.insert(_entry!);
+      Overlay.of(context).insert(_entry!);
 
       await openMenuCompleter.future;
       popupState = PopupMenuState.OPENED;
@@ -258,7 +259,8 @@ class WithKeepKeyboardPopupMenuState extends State<WithKeepKeyboardPopupMenu> {
 
   /// Only has effect when popup is fully opened or opening.
   Future<void> closePopupMenu() async {
-    if (popupState == PopupMenuState.OPENED || popupState == PopupMenuState.OPENING) {
+    if (popupState == PopupMenuState.OPENED ||
+        popupState == PopupMenuState.OPENING) {
       popupState = PopupMenuState.CLOSING;
       await _menuKey.currentState!.hideMenu();
       _entry!.remove();
@@ -274,11 +276,13 @@ Widget _defaultBackgroundBuilder(BuildContext context, Widget child) {
   );
 }
 
-Offset _defaultCalculatePopupPosition(Size menuSize, Rect overlayRect, Rect buttonRect) {
+Offset _defaultCalculatePopupPosition(
+    Size menuSize, Rect overlayRect, Rect buttonRect) {
   double y = buttonRect.top;
 
   double x;
-  if (buttonRect.left - overlayRect.left > overlayRect.right - buttonRect.right) {
+  if (buttonRect.left - overlayRect.left >
+      overlayRect.right - buttonRect.right) {
     // If button is closer to the right edge, grow to the left.
     x = buttonRect.right - menuSize.width;
   } else {
